@@ -3,36 +3,39 @@
   Class:            CIS170L
   Professor:        Penn Wu
   Project Name:     Tower of Hanoi
-  Date:             20200807
+  Date:             20200810
 */
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <algorithm>
 
 using namespace std;
 
-string defaultTable[] = {
+const vector<vector<string>> defaultTable = {
+    {"3","0","XXX"},
+    {"4","0","XXX"},
+    {"5","0","XXX"},
+    {"6","0","XXX"},
+    {"7","0","XXX"},
+    {"8","0","XXX"},
+    {"9","0","XXX"},
+    {"10","0","XXX"}
+};
+
+const string tableHeader[] = {
     "+----------------------------------------------+\n",
     "|              High Score List                 |\n",
     "+----------------------------------------------+\n",
     "| Tower Size | Perfect | High Score | Initials |\n",
-    "+----------------------------------------------+\n",
-    //"|     3      |     7   |   ----     |    ___   |\n",
-    //"|     4      |    15   |   ----     |    ___   |\n",
-    //"|     5      |    31   |   ----     |    ___   |\n",
-    //"|     6      |    63   |   ----     |    ___   |\n",
-    //"|     7      |   127   |   ----     |    ___   |\n",
-    //"|     8      |   255   |   ----     |    ___   |\n",
-    //"|     9      |   511   |   ----     |    ___   |\n",
-    //"|    10      |  1023   |   ----     |    ___   |\n",
-    //"+----------------------------------------------+\n"
+    "+----------------------------------------------+\n"
 };
 
-string ruleBook[] = {
+const string ruleBook[] = {
     "+----------------------------------------------+\n",
     "|                      Rules                   |\n",
     "|   1. You may only move one disc at a time.   |\n",
@@ -45,38 +48,58 @@ string ruleBook[] = {
     "+----------------------------------------------+\n"
 };
 
-vector<string> highScoresTable;
+// "3,8,FOO" -> {"3", "8", "FOO"}
 
-int loadScoreBoard(void) {
-    char filename[] = "scoreboard.csv";
-    fstream scoreBoard;
-    string readScores;
+vector<string> parseCSV(const string &line) {
+    vector<string> result;
+    stringstream record(line);
+    string item;
 
-    scoreBoard.open(filename, fstream::in);
+    while (getline(record, item, ',')) {
+        result.push_back(item);
+    }
+    return result;
+}
+
+vector<vector<string>> loadScoreboard(string filename) {
+    vector<vector<string>> scores;
+    fstream file;
+    string line;
+
+    file.open(filename, fstream::in);
 
     // If the scoreboard.txt file does exist, read and display the contents of the file.
-    // If the scoreboard.txt file doesn't exist, create the scoreboard.txt file; then read and display the contents of the file.
-    if (scoreBoard) {
+    // If the scoreboard.txt file doesn't exist, create the scoreboard.txt file.
+    if (file) {
         cout << "Thank you for playing the Tower of Hanoi, Loading Scoreboard...\n";
-        while (getline(scoreBoard, readScores)) {
-            highScoresTable.push_back(readScores);
+        while (getline(file, line)) {
+            scores.push_back(parseCSV(line));
         }
-        scoreBoard.close();
     }
     else {
         cout << "You're the first player, creating a new high scores table!\n";
-        scoreBoard.open(filename, fstream::in | fstream::out | fstream::trunc);
-        for (int i = 0; i < sizeof(defaultTable) / sizeof(defaultTable[0]); i++) {
-            scoreBoard << defaultTable[i];
-            cout << defaultTable[i];
+        file.open(filename, fstream::in | fstream::out | fstream::trunc);
+        // The magic happens, NO IT DOESN'T
+        for (int i = 0; i < defaultTable.size(); i++) {
+            file << defaultTable[i][0] + "," + defaultTable[i][1] + "," + defaultTable[i][2] << endl;
         }
-        scoreBoard.close();
+        scores = defaultTable;
     }
-    return 0;
+    file.close();
+    return scores;
+}
+
+int printScoreboard() {
+    // Read and display the contents of the scoreboard. 
+    for (int i = 0; i < sizeof(tableHeader) / sizeof(tableHeader[0]); i++) {
+        cout << tableHeader[i];
+    }
+    int fu = 0;
+    return fu;
 }
 
 void manageScoreboard() {
-    //This function will handle the new high scores.
+    // This function will handle the new high scores.
     char filename[] = "scoreboard.csv";
     fstream scoreBoard;
     string highScoreInitials;
@@ -137,9 +160,8 @@ int chooseDifficulty() {
 }
 
 int main() {
-
-    loadScoreBoard();
-
+    vector<vector<string>> highScores = loadScoreboard("scoreboard.csv");
+    printScoreboard();
     gameOptions();
 
     int towerSize = chooseDifficulty();
