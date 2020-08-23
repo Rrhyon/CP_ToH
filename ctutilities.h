@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _CTUTILITIES_H_
-#define _CTUTILITIES_H_
+#ifndef CTUTILITIES_H_
+#define CTUTILITIES_H_
 /*
   Name:             Phillip Tette
   Class:            CIS170L
