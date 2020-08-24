@@ -3,7 +3,8 @@
   Class:            CIS170L
   Professor:        Penn Wu
   Project Name:     Tower of Hanoi
-  Date:             20200810
+  Date:             20200714
+  Date Modified:    20200824
 */
 
 #include <iostream>
@@ -17,7 +18,6 @@ using namespace std;
 
 // Global Variables
 vector<vector<string>> highScores;
-vector<int> towers[3];
 const string scoreboard = "scoreboard.csv";
 
 const string tableHeader[] = {
@@ -57,16 +57,13 @@ const string ruleBook[] = {
 ******************************************************************************/
 
 vector<vector<string>> loadScoreboard() {
-    /* Will attempt to open a file named "scoreboard.csv".
-     * If the file exists, it will open the file with an input
-     * stream only. It will then read the file line by line,
-     * using the helper function "parseCSV" and will assign each
-     * returned "line" vector to the scores vector of vectors,
-     * until there are no new lines. If the file doesn't exist,
-     * the file "scoreboard.csv" will be created and opened with
-     * an input, output, and truncate stream; then using the 
-     * default values provided in the program, the scoreboard
-     * will be created.
+    /* Will attempt to open a file named "scoreboard.csv". If the file exists,
+     * it will open the file with an input stream only. It will then read the file
+     * line by line, using the helper function "parseCSV" and will assign each
+     * returned "line" vector to the scores vector of vectors, until there are no
+     * new lines. If the file doesn't exist, the file "scoreboard.csv" will be
+     * created and opened with an input, output, and truncate stream; then using
+     * the default values provided in the program, the scoreboard will be created.
      */
     vector<vector<string>> scores;
     fstream file;
@@ -80,10 +77,9 @@ vector<vector<string>> loadScoreboard() {
         }
     }
     else {
-        file.open(scoreboard, fstream::in | fstream::out | fstream::trunc);
+        file.open(scoreboard, fstream::out);
         for (int i = 0; i < defaultTable.size(); i++) {
-            file << defaultTable[i][0] + "," + defaultTable[i][1] + "," + 
-                    defaultTable[i][2] + "," + defaultTable[i][3] << endl;
+            file << writeCSV(defaultTable[i]) << endl;
         }
         scores = defaultTable;
         }
@@ -92,20 +88,28 @@ vector<vector<string>> loadScoreboard() {
 }
 
 void saveScoreboard() {
+    /* Will open the "scoreboard.csv" file with an output (write) stream only.
+     * The function will then read through the "highScores" vector of vectors,
+     * and will add overwrite the data on the scoreboard with the most recent
+     * changes using the "writeCSV" helper function.
+     */
     fstream file;
-    file.open(scoreboard, fstream::out);
-    for (unsigned int i = 0; i < highScores.size(); i++) {
+    file.open(scoreboard, fstream::out | fstream::trunc);
+    for (size_t i = 0; i < highScores.size(); i++) {
         file << writeCSV(highScores[i]) << endl;
     }
     file.close();
 }
 
 void displayScoreboard() {
-
+    /* Will read through and cout the global "tableHeader", and then the 
+     * "highScores" vector of vectors, and lastly grab the 4th element of the
+     * "tableHeader" to close out the scoreboard display.
+     */
     for (int i = 0; i < sizeof(tableHeader) / sizeof(tableHeader[0]); i++) {
         cout << tableHeader[i];
     }
-    for (unsigned int i = 0; i < highScores.size(); i++) {
+    for (size_t i = 0; i < highScores.size(); i++) {
         cout << "| "    + highScores[i][0] + " Discs" +
             "   |  "    + highScores[i][1] +
             "   |    "  + highScores[i][2] +
@@ -115,37 +119,51 @@ void displayScoreboard() {
     cout << tableHeader[4];
 }
 
-void checkHighScore(int numDiscs,  int playerScore) {
-
-    saveScoreboard();
+void checkHighScore(int numDiscs, int playerScore) {
+    // It works so I went with it.
+    for (size_t i = 0; i < highScores.size(); i++) {
+        if (stoi(highScores[i][0]) == numDiscs) {
+            cout << writeCSV(highScores[i]) << endl;
+            if (stoi(highScores[i][2]) == 0 || stoi(highScores[i][2]) > playerScore) {
+                highScores[i][3] = input("Congratulations, you have a new high score!!! Please enter your initials: ");
+                highScores[i][2] = string(4 - to_string(playerScore).length(), ' ') + to_string(playerScore);
+                saveScoreboard();
+             
+            }
+            break;
+        }
+    }
 }
 
-void gameOptions() {
+bool gameOptions() {
+    // This function will allow the player to choose how to proceed once the
+    // game is started.
     string selected;
-    // This function will allow the player to choose how to proceed once the game is started.
-    vector<string> options = { "P", "R", "Q" };
+    const vector<string> options = { "P", "R", "Q" };
     while (!isValidOption(selected, options)) {
         selected = capsMe(input("\nPlease select one of the following menu options.\n"
                 "    P to Play, R for Rules, or Q to quit: "));
     }
     if (selected == "P") {
         cout << "\n        Excellent, let's get started!!!\n\n";
+        return true;
     }
     else if (selected == "R") {
         cout << endl;
         for (int i = 0; i < sizeof(ruleBook) / sizeof(ruleBook[0]); i++)
             cout << ruleBook[i];
-        gameOptions();
+        return gameOptions();
     }
     else if (selected == "Q") {
-        exit(0);
+        return false;
     }
+    return false;
 }
 
 int chooseDifficulty() {
-    // This functions will serve only to ask the user to select their difficulty.
+    // Will serve only to ask the user to select their difficulty level.
     string discQuantity;
-    vector<string> validNum = { "3", "4", "5", "6", "7", "8", "9", "10" };
+    const vector<string> validNum = { "3", "4", "5", "6", "7", "8", "9", "10" };
     while (!isValidOption(discQuantity, validNum)) {
         discQuantity = input("Select the numbers of discs you would like to start with (3-10): ");
     }
@@ -153,12 +171,13 @@ int chooseDifficulty() {
 }
 
 void showTowerState(vector<int> state) {
-    
+    // Using the provided value, "discState" from the doGameLoop, this function
+    // will show to the user what peg each disc is located on.
     for (int peg = 1; peg <= 3; peg++) {
         vector<string> stack;
         cout << "Discs on Peg " << peg << ": ";
         // find all discs on this peg
-        for (unsigned int disc = state.size() - 1; disc >= 1; disc--) {
+        for (size_t disc = state.size() - 1; disc >= 1; disc--) {
             if (state[disc] == peg) {
                 stack.push_back(to_string(disc));
             }
@@ -169,19 +188,67 @@ void showTowerState(vector<int> state) {
         }
         cout << endl;
     }
+    vector<string> state2;
+    for (size_t i = 0; i < state.size(); i++) {
+        state2.push_back(to_string(state[i]));
+    }
+    cout << "Full State: " << writeCSV(state2) << endl;
 }
 
-int moveDisc() {
+bool invalidPeg(vector<int> state, int srcpeg, int destpeg = 0) {
+    int srcsize = 0;
+    int destsize = 0;
+    for (size_t disc = 1; disc < state.size(); disc++) {
+        if (state[disc] == srcpeg) {
+            srcsize = int(disc);
+            break;
+        }
+    }
+    if (srcpeg != 0 && srcsize == 0) {
+        cout << "Source peg is empty!" << endl;
+        return true;
+    }
+    for (size_t disc = 1; disc < state.size(); disc++) {
+        if (state[disc] == destpeg) {
+            destsize = int(disc);
+            break;
+        }
+    }
+    if (destsize != 0 && srcsize > destsize) {
+        cout << "Smaller disc is already on this peg." << endl;
+        return true;
+    }
+    return false;
+}
 
-    return stoi(input("Select the disc you would like to move: "));
+vector<int> moveDisc(vector<int> state) {
+
+    string source, dest;
+    int current = 0;
+    const vector<string> options = { "1", "2", "3" };
+    while (!isValidOption(source, options) || invalidPeg(state, stoi(source))) {
+        source = input("Select the source peg to choose a disc: ");
+
+    }
+    while (!isValidOption(dest, options) || invalidPeg(state, stoi(source), stoi(dest))) {
+        dest = input("Select the destination peg to move the disc: ");
+    }
+    for (size_t disc = 1; disc < state.size(); disc++) {
+        if (state[disc] == stoi(source)) {
+            current = int(disc);
+            break;
+        }
+    }
+    state[current] = stoi(dest);
+    return state;
 }
 
 bool checkGameState(vector<int> state) {
-    // Checks that all the discs are located on the same peg, other than peg one
+    // Checks that all the discs are located on the same peg, other than peg one.
     if (state[1] == 1) {
         return false;
     }
-    for (unsigned int disc = state.size() - 1; disc > 1; disc--) {
+    for (size_t disc = 2; disc < state.size(); disc++) {
         if(state[1] != state[disc]){
             return false;
         }
@@ -190,40 +257,40 @@ bool checkGameState(vector<int> state) {
 }
 
 int doGameLoop(const int discs) {
-
+    // Used the vector integer due to a constant requirement placed on the towerSize
+    // variable. This will create the array of discs dynamically based on the option
+    // selected in chooseDifficulty.
+    bool iscomplete = false;
     vector<int> discState;
     int moveCount = 0;
-    bool inPlay = true;
     // Put an empty value slot 0
     discState.push_back(0);
     for (int disc = 1; disc <= discs; disc++) {
         // Start all discs on first tower
         discState.push_back(1);
     }
-    while (inPlay) {
+    while (!iscomplete) {
         showTowerState(discState);
         cout << "Number of moves: " + to_string(moveCount) << endl;
-        moveDisc();
-        moveCount++;
-        inPlay = checkGameState(discState);
-
+        iscomplete = checkGameState(discState);
+        if (!iscomplete) {
+            discState = moveDisc(discState);
+            moveCount++;
+        }
     }
-    checkHighScore(discs, moveCount);
-    return 0;
+    return moveCount;
 }
     
 int main() {
 
+    bool keepGoing = false;
+
     highScores = loadScoreboard();
-
     displayScoreboard();
-
-    gameOptions();
-
-    int discs = chooseDifficulty();
-
-    // Used the vector integer due to a constant requirement placed on the towerSize variable.
-    // This will create the array of discs dynamically based on the option selected in chooseDifficulty.
-
-    doGameLoop(discs);
+    while (gameOptions()) {
+        int discs = chooseDifficulty();
+        int moveCount = doGameLoop(discs);
+        checkHighScore(discs, moveCount);
+        displayScoreboard();
+    }
 }

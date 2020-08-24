@@ -4,6 +4,7 @@
   Professor:        Penn Wu
   Project Name:     Tower of Hanoi
   Date:             20200810
+  Date Modified:    20200823
 */
 
 #include <iostream>
@@ -63,7 +64,7 @@ string capsMe(const string lcString) {
     return ucString;
 }
 
-bool isValidOption(string choice, vector<string> values) {
+bool isValidOption(const string choice, const vector<string> values) {
     // Will validate all input assuming it's a string.
-    return find(values.begin(), values.end(), choice) != values.end();
+    return !choice.empty() && find(values.begin(), values.end(), choice) != values.end();
 }

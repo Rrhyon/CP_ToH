@@ -1,13 +1,15 @@
 #pragma once
-#ifndef CTUTILITIES_H_
-#define CTUTILITIES_H_
 /*
   Name:             Phillip Tette
   Class:            CIS170L
   Professor:        Penn Wu
   Project Name:     Tower of Hanoi
-  Date:             20200810
+  Date Started:     20200810
+  Date Modified:    20200823
 */
+
+#ifndef CTUTILITIES_H
+#define CTUTILITIES_H
 
 #include <iostream>
 #include <fstream>
@@ -27,6 +29,6 @@ string input(const string);
 
 string capsMe(const string);
 
-bool isValidOption(string, vector<string>);
+bool isValidOption(const string, const vector<string>);
 
 #endif
