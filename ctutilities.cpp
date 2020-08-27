@@ -33,7 +33,7 @@ vector<string> parseCSV(const string& line) {
     return result;
 }
 
-string writeCSV(const vector<string> data) {
+string writeCSV(const vector<string>& data) {
     // Will read each string in a vector
     // converting each eleme
     stringstream record;
@@ -49,14 +49,14 @@ bool fileExists(const string& file) {
     return f.good();
 }
 
-string input(const string query) {
+string input(const string& query, const char delim) {
     string result;
     cout << query;
-    getline(cin, result);
+    getline(cin, result, delim);
     return result;
 }
 
-string capsMe(const string lcString) {
+string capsMe(const string& lcString) {
     string ucString;
     for (unsigned int i = 0; i < lcString.size(); i++) {
         ucString.push_back(toupper(lcString.at(i)));
@@ -64,7 +64,32 @@ string capsMe(const string lcString) {
     return ucString;
 }
 
-bool isValidOption(const string choice, const vector<string> values) {
+bool isValidOption(const string& choice, const vector<string>& values) {
     // Will validate all input assuming it's a string.
     return !choice.empty() && find(values.begin(), values.end(), choice) != values.end();
+}
+
+string padMe(const string& txt, const size_t len, const char dir, const char pad) {
+    switch (dir) {
+        case 'l':
+            return string(len - txt.length(), pad) + txt;
+        case 'c':
+            return string((len - txt.length()) / 2, pad) + txt +
+                   string((len - txt.length()) / 2 + (len - txt.length()) % 2, pad);
+        case 'r':
+        default:
+            return txt + string(len - txt.length(), pad);
+    }
+}
+
+string lPadMe(const string& txt, const size_t len, const char pad) {
+    return padMe(txt, len, 'l', pad);
+}
+
+string cPadMe(const string& txt, const size_t len, const char pad) {
+    return padMe(txt, len, 'c', pad);
+}
+
+string rPadMe(const string& txt, const size_t len, const char pad) {
+    return padMe(txt, len, 'r', pad);
 }

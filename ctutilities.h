@@ -21,14 +21,22 @@ using namespace std;
 
 vector<string> parseCSV(const string&);
 
-string writeCSV(const vector<string>);
+string writeCSV(const vector<string>&);
 
 bool fileExists(const string&);
 
-string input(const string);
+string input(const string&, const char = '\n');
 
-string capsMe(const string);
+string capsMe(const string&);
 
-bool isValidOption(const string, const vector<string>);
+bool isValidOption(const string&, const vector<string>&);
+
+string padMe(const string&, const size_t, const char = 'r', const char = ' ');
+
+string lPadMe(const string&, const size_t, const char = ' ');
+
+string cPadMe(const string&, const size_t, const char = ' ');
+
+string rPadMe(const string&, const size_t, const char = ' ');
 
 #endif

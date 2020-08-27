@@ -29,14 +29,14 @@ const string tableHeader[] = {
 };
 
 const vector<vector<string>> defaultTable = {
-    {" 3","   7","0000","XXX"},
-    {" 4","  15","0000","XXX"},
-    {" 5","  31","0000","XXX"},
-    {" 6","  63","0000","XXX"},
-    {" 7"," 127","0000","XXX"},
-    {" 8"," 255","0000","XXX"},
-    {" 9"," 511","0000","XXX"},
-    {"10","1023","0000","XXX"}
+    {"3",  "7",    "0", "XXX"},
+    {"4",  "15",   "0", "XXX"},
+    {"5",  "31",   "0", "XXX"},
+    {"6",  "63",   "0", "XXX"},
+    {"7",  "127",  "0", "XXX"},
+    {"8",  "255",  "0", "XXX"},
+    {"9",  "511",  "0", "XXX"},
+    {"10", "1023", "0", "XXX"}
 };
 
 const string ruleBook[] = {
@@ -68,9 +68,8 @@ vector<vector<string>> loadScoreboard() {
     vector<vector<string>> scores;
     fstream file;
     string line;
-
     file.open(scoreboard, fstream::in);
-    cout << "    Thank you for playing the Tower of Hanoi." << endl;
+    cout << "    Thank you for playing the Tower of Hanoi.\n";
     if (fileExists(scoreboard)) {
         while (getline(file, line)) {
             scores.push_back(parseCSV(line));
@@ -82,7 +81,7 @@ vector<vector<string>> loadScoreboard() {
             file << writeCSV(defaultTable[i]) << endl;
         }
         scores = defaultTable;
-        }
+    }
     file.close();
     return scores;
 }
@@ -110,25 +109,23 @@ void displayScoreboard() {
         cout << tableHeader[i];
     }
     for (size_t i = 0; i < highScores.size(); i++) {
-        cout << "| "    + highScores[i][0] + " Discs" +
-            "   |  "    + highScores[i][1] +
-            "   |    "  + highScores[i][2] +
-            "    |    " + highScores[i][3] + 
-            "   |"      << endl;
+        cout << "|" + cPadMe(highScores[i][0] + " Discs", 12) +
+                "|" + cPadMe(highScores[i][1], 9) +
+                "|" + cPadMe(highScores[i][2], 12) +
+                "|" + cPadMe(highScores[i][3], 10) + 
+                "|" << endl;
     }
     cout << tableHeader[4];
 }
 
-void checkHighScore(int numDiscs, int playerScore) {
+void checkHighScore(const int numDiscs, const int playerScore) {
     // It works so I went with it.
     for (size_t i = 0; i < highScores.size(); i++) {
         if (stoi(highScores[i][0]) == numDiscs) {
-            cout << writeCSV(highScores[i]) << endl;
             if (stoi(highScores[i][2]) == 0 || stoi(highScores[i][2]) > playerScore) {
-                highScores[i][3] = input("Congratulations, you have a new high score!!! Please enter your initials: ");
-                highScores[i][2] = string(4 - to_string(playerScore).length(), ' ') + to_string(playerScore);
+                highScores[i][3] = input("Congratulations, you have a new high score!!!\nPlease enter your initials: ");
+                highScores[i][2] = to_string(playerScore);
                 saveScoreboard();
-             
             }
             break;
         }
@@ -142,7 +139,7 @@ bool gameOptions() {
     const vector<string> options = { "P", "R", "Q" };
     while (!isValidOption(selected, options)) {
         selected = capsMe(input("\nPlease select one of the following menu options.\n"
-                "    P to Play, R for Rules, or Q to quit: "));
+                                "    P to Play, R for Rules, or Q to quit: "));
     }
     if (selected == "P") {
         cout << "\n        Excellent, let's get started!!!\n\n";
@@ -150,8 +147,9 @@ bool gameOptions() {
     }
     else if (selected == "R") {
         cout << endl;
-        for (int i = 0; i < sizeof(ruleBook) / sizeof(ruleBook[0]); i++)
+        for (int i = 0; i < sizeof(ruleBook) / sizeof(ruleBook[0]); i++) {
             cout << ruleBook[i];
+        }
         return gameOptions();
     }
     else if (selected == "Q") {
@@ -170,7 +168,7 @@ int chooseDifficulty() {
     return stoi(discQuantity);
 }
 
-void showTowerState(vector<int> state) {
+void showTowerState(const vector<int>& state) {
     // Using the provided value, "discState" from the doGameLoop, this function
     // will show to the user what peg each disc is located on.
     for (int peg = 1; peg <= 3; peg++) {
@@ -188,14 +186,9 @@ void showTowerState(vector<int> state) {
         }
         cout << endl;
     }
-    vector<string> state2;
-    for (size_t i = 0; i < state.size(); i++) {
-        state2.push_back(to_string(state[i]));
-    }
-    cout << "Full State: " << writeCSV(state2) << endl;
 }
 
-bool invalidPeg(vector<int> state, int srcpeg, int destpeg = 0) {
+bool invalidPeg(const vector<int>& state, const int srcpeg, const int destpeg = 0) {
     int srcsize = 0;
     int destsize = 0;
     for (size_t disc = 1; disc < state.size(); disc++) {
@@ -221,8 +214,9 @@ bool invalidPeg(vector<int> state, int srcpeg, int destpeg = 0) {
     return false;
 }
 
-vector<int> moveDisc(vector<int> state) {
-
+void moveDisc(vector<int>& state) {
+    // Prompt the player for moves and modifies the game state.
+    // Note: 'state' is an in/out parameter
     string source, dest;
     int current = 0;
     const vector<string> options = { "1", "2", "3" };
@@ -240,10 +234,9 @@ vector<int> moveDisc(vector<int> state) {
         }
     }
     state[current] = stoi(dest);
-    return state;
 }
 
-bool checkGameState(vector<int> state) {
+bool checkGameState(const vector<int>& state) {
     // Checks that all the discs are located on the same peg, other than peg one.
     if (state[1] == 1) {
         return false;
@@ -260,7 +253,7 @@ int doGameLoop(const int discs) {
     // Used the vector integer due to a constant requirement placed on the towerSize
     // variable. This will create the array of discs dynamically based on the option
     // selected in chooseDifficulty.
-    bool iscomplete = false;
+    bool isComplete = false;
     vector<int> discState;
     int moveCount = 0;
     // Put an empty value slot 0
@@ -269,21 +262,19 @@ int doGameLoop(const int discs) {
         // Start all discs on first tower
         discState.push_back(1);
     }
-    while (!iscomplete) {
+    while (!isComplete) {
         showTowerState(discState);
         cout << "Number of moves: " + to_string(moveCount) << endl;
-        iscomplete = checkGameState(discState);
-        if (!iscomplete) {
-            discState = moveDisc(discState);
+        isComplete = checkGameState(discState);
+        if (!isComplete) {
+            moveDisc(discState);
             moveCount++;
         }
     }
     return moveCount;
 }
-    
-int main() {
 
-    bool keepGoing = false;
+int main() {
 
     highScores = loadScoreboard();
     displayScoreboard();
@@ -293,4 +284,5 @@ int main() {
         checkHighScore(discs, moveCount);
         displayScoreboard();
     }
+    return 0;
 }
