@@ -4,7 +4,7 @@
   Professor:        Penn Wu
   Project Name:     Tower of Hanoi
   Date:             20200810
-  Date Modified:    20200823
+  Date Modified:    20200827
 */
 
 #include <iostream>
@@ -17,13 +17,11 @@
 using namespace std;
 
 vector<string> parseCSV(const string& line) {
-    // Will read a CSV file line by line
-    // converting each line into a stringstream.
-    // With a comma as the delimiter, the strings 
-    // will be entered one at a time into the string 
-    // variable "item", and will be recorded into 
-    // the vector results as elements, and results 
-    // will be returned.
+    /* Will read a CSV file line by line converting each line into a stringstream.
+     * With a comma as the delimiter, the strings will be entered one at a time into
+     * the string variable "item", and will be recorded into the vector results as
+     * elements, and results will be returned.
+     */
     vector<string> result;
     stringstream record(line);
     string item;
@@ -34,8 +32,9 @@ vector<string> parseCSV(const string& line) {
 }
 
 string writeCSV(const vector<string>& data) {
-    // Will read each string in a vector
-    // converting each eleme
+    /* Will read each string in a vector
+     * converting each element into 
+     */
     stringstream record;
     record << data[0];
     for (unsigned int i = 1; i < data.size(); i++) {
@@ -92,4 +91,29 @@ string cPadMe(const string& txt, const size_t len, const char pad) {
 
 string rPadMe(const string& txt, const size_t len, const char pad) {
     return padMe(txt, len, 'r', pad);
+}
+
+string addMargin(const string& txt, const size_t len, const char dir, const char pad) {
+    switch (dir) {
+    case 'l':
+        return string(len, pad) + txt;
+    case 'c':
+        return string(len / 2, pad) + txt +
+               string(len / 2 + len % 2, pad);
+    case 'r':
+    default:
+        return txt + string(len, pad);
+    }
+}
+
+string lMargin(const string& txt, const size_t len, const char pad) {
+    return addMargin(txt, len, 'l', pad);
+}
+
+string cMargin(const string& txt, const size_t len, const char pad) {
+    return addMargin(txt, len, 'c', pad);
+}
+
+string rMargin(const string& txt, const size_t len, const char pad) {
+    return addMargin(txt, len, 'r', pad);
 }

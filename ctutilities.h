@@ -5,7 +5,7 @@
   Professor:        Penn Wu
   Project Name:     Tower of Hanoi
   Date Started:     20200810
-  Date Modified:    20200823
+  Date Modified:    20200827
 */
 
 #ifndef CTUTILITIES_H
@@ -38,5 +38,13 @@ string lPadMe(const string&, const size_t, const char = ' ');
 string cPadMe(const string&, const size_t, const char = ' ');
 
 string rPadMe(const string&, const size_t, const char = ' ');
+
+string addMargin(const string&, const size_t, const char = 'r', const char = ' ');
+
+string lMargin(const string&, const size_t, const char = ' ');
+
+string cMargin(const string&, const size_t, const char = ' ');
+
+string rMargin(const string&, const size_t, const char = ' ');
 
 #endif

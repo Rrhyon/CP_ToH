@@ -4,7 +4,7 @@
   Professor:        Penn Wu
   Project Name:     Tower of Hanoi
   Date:             20200714
-  Date Modified:    20200824
+  Date Modified:    20200827
 */
 
 #include <iostream>
@@ -57,11 +57,11 @@ const string ruleBook[] = {
 ******************************************************************************/
 
 vector<vector<string>> loadScoreboard() {
-    /* Will attempt to open a file named "scoreboard.csv". If the file exists,
+    /* Will attempt to open a file named `scoreboard.csv`. If the file exists,
      * it will open the file with an input stream only. It will then read the file
-     * line by line, using the helper function "parseCSV" and will assign each
-     * returned "line" vector to the scores vector of vectors, until there are no
-     * new lines. If the file doesn't exist, the file "scoreboard.csv" will be
+     * line by line, using the helper function `parseCSV` and will assign each
+     * returned `line` vector to the scores vector of vectors, until there are no
+     * new lines. If the file doesn't exist, the file `scoreboard.csv` will be
      * created and opened with an input, output, and truncate stream; then using
      * the default values provided in the program, the scoreboard will be created.
      */
@@ -69,7 +69,7 @@ vector<vector<string>> loadScoreboard() {
     fstream file;
     string line;
     file.open(scoreboard, fstream::in);
-    cout << "    Thank you for playing the Tower of Hanoi.\n";
+    cout << lMargin("Thank you for playing the Tower of Hanoi.", 4) << endl;
     if (fileExists(scoreboard)) {
         while (getline(file, line)) {
             scores.push_back(parseCSV(line));
@@ -87,10 +87,10 @@ vector<vector<string>> loadScoreboard() {
 }
 
 void saveScoreboard() {
-    /* Will open the "scoreboard.csv" file with an output (write) stream only.
-     * The function will then read through the "highScores" vector of vectors,
+    /* Will open the `scoreboard.csv` file with an output (write) stream only.
+     * The function will then read through the `highScores` vector of vectors,
      * and will add overwrite the data on the scoreboard with the most recent
-     * changes using the "writeCSV" helper function.
+     * changes using the `writeCSV` helper function.
      */
     fstream file;
     file.open(scoreboard, fstream::out | fstream::trunc);
@@ -101,9 +101,9 @@ void saveScoreboard() {
 }
 
 void displayScoreboard() {
-    /* Will read through and cout the global "tableHeader", and then the 
-     * "highScores" vector of vectors, and lastly grab the 4th element of the
-     * "tableHeader" to close out the scoreboard display.
+    /* Will read through and cout the global `tableHeader`, and then the 
+     * `highScores` vector of vectors, and lastly grab the 4th element of the
+     * `tableHeader` to close out the scoreboard display.
      */
     for (int i = 0; i < sizeof(tableHeader) / sizeof(tableHeader[0]); i++) {
         cout << tableHeader[i];
@@ -119,11 +119,16 @@ void displayScoreboard() {
 }
 
 void checkHighScore(const int numDiscs, const int playerScore) {
-    // It works so I went with it.
+    /* Will check to see if the player's score is better than the recorded
+     * highscore. If so, the player will be prompted to enter their initials
+     * to immortalize themselves in the scoreboard. After which, the score
+     * and player initials will be saved.
+     */
     for (size_t i = 0; i < highScores.size(); i++) {
         if (stoi(highScores[i][0]) == numDiscs) {
             if (stoi(highScores[i][2]) == 0 || stoi(highScores[i][2]) > playerScore) {
-                highScores[i][3] = input("Congratulations, you have a new high score!!!\nPlease enter your initials: ");
+                highScores[i][3] = input("Congratulations, you have a new high score!!!\n"
+                                         "Please enter your initials: ");
                 highScores[i][2] = to_string(playerScore);
                 saveScoreboard();
             }
@@ -133,16 +138,15 @@ void checkHighScore(const int numDiscs, const int playerScore) {
 }
 
 bool gameOptions() {
-    // This function will allow the player to choose how to proceed once the
-    // game is started.
+    // This function will allow the player to choose how to proceed once the game is started.
     string selected;
     const vector<string> options = { "P", "R", "Q" };
     while (!isValidOption(selected, options)) {
         selected = capsMe(input("\nPlease select one of the following menu options.\n"
-                                "    P to Play, R for Rules, or Q to quit: "));
+                                "P to Play, R for Rules, or Q (or Ctrl+C) to quit: "));
     }
     if (selected == "P") {
-        cout << "\n        Excellent, let's get started!!!\n\n";
+        cout << endl << lMargin("Excellent, let's get started!!!", 8) << endl << endl;
         return true;
     }
     else if (selected == "R") {
@@ -189,6 +193,12 @@ void showTowerState(const vector<int>& state) {
 }
 
 bool invalidPeg(const vector<int>& state, const int srcpeg, const int destpeg = 0) {
+    /* Will check to see if there are any discs on the source peg, if not it will
+     * notify the player that the source peg is empty, otherwise proceed. Next, it
+     * will check to see if there are any discs on the destination peg, if not then
+     * proceed. If there is, and the disc is smaller than the currently held disc,
+     * the player will be notified that they may not place it here.
+     */
     int srcsize = 0;
     int destsize = 0;
     for (size_t disc = 1; disc < state.size(); disc++) {
@@ -263,6 +273,7 @@ int doGameLoop(const int discs) {
         discState.push_back(1);
     }
     while (!isComplete) {
+        cout << string(100, '\n');
         showTowerState(discState);
         cout << "Number of moves: " + to_string(moveCount) << endl;
         isComplete = checkGameState(discState);
@@ -275,7 +286,7 @@ int doGameLoop(const int discs) {
 }
 
 int main() {
-
+    // Here is where the fun begins!
     highScores = loadScoreboard();
     displayScoreboard();
     while (gameOptions()) {
