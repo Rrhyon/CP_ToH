@@ -7,6 +7,7 @@
   Date Modified:    20200827
 */
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
